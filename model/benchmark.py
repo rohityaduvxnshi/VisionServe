@@ -17,7 +17,7 @@ Usage:
   python model/benchmark.py --models m1_openvino_model m1_int8_openvino_model --runs 200
 
 WARNING: run latency benchmarks in a FOREGROUND shell on an idle machine.
-Windows 11 throttles background-launched processes (EcoQoS), which inflated
+Windows throttles background-launched processes (EcoQoS), which inflated
 p50 up to 5x in testing. mAP is unaffected by scheduling.
 """
 

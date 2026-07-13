@@ -11,7 +11,7 @@ config, held-out test split.
 FastAPI backend + thin React frontend that draws detections and shows a live
 **FP32 ↔ INT8 latency toggle**.
 
-## Headline results (local: Intel i5-1135G7, 4C/8T, VNNI, 16GB, Windows 11)
+## Headline results (local: Intel i5-1135G7, 4C/8T, VNNI, 16GB, Windows 10 Home 22H2)
 
 Same backend (OpenVINO), same machine, interleaved measurement, imgsz=640, batch=1,
 `OMP_NUM_THREADS=4`. Full method + table in [eval/quantization.md](eval/quantization.md).
@@ -32,6 +32,23 @@ Same backend (OpenVINO), same machine, interleaved measurement, imgsz=640, batch
 - **Honest negative result:** ONNX Runtime INT8 (QDQ static quant) was ~2× *slower* than
   ONNX FP32 on this nano model despite VNNI. INT8 is not an automatic speedup.
 - Deployed target (HF Spaces 2 vCPU): `MEASURE` (re-run `model/benchmark.py` there).
+
+### Service-level latency (HTTP end-to-end, same machine)
+
+Measured with [server/loadtest.py](server/loadtest.py) against uvicorn on localhost
+(200 warm requests, single test-split image). This is what a client sees — decode +
+queue + inference; the table above is in-process inference only.
+
+| Model | Concurrency | p50 (ms) | p95 (ms) | p99 (ms) | req/s |
+|---|---|---|---|---|---|
+| INT8 | 1 | 25.9 | 28.4 | 50.4 | 36.3 |
+| INT8 | 4 | 90.6 | 104.5 | 145.5 | 38.0 |
+| FP32 | 1 | 30.2 | 32.5 | 40.8 | 31.5 |
+
+Inference is serialized under one global lock (Ultralytics predictors aren't thread-safe),
+so at c=4 the added latency is queue wait: throughput stays flat (~37 req/s) while p99
+triples. Honest concurrent-client picture at demo scale; an async queue is the listed
+next step if concurrent load ever matters.
 
 ## Evaluation (held-out test split: 1234 images / 1782 instances)
 
@@ -58,7 +75,7 @@ POST /predict            multipart field "image"; query: model=int8|fp32, conf (
       "detections": [{ "class_id", "class_name", "confidence",
                        "box": {"x1","y1","x2","y2"} }] }   # absolute px, original image
 POST /predict/batch      multipart "images" (≤16) → { "results": [ ... ] }
-GET  /health             → { "status": "ok" }
+GET  /health             → { "status": "ok", "model", "backend", "version" }
 GET  /model/info         → { "format", "classes", "input_size", "version" }
 ```
 
