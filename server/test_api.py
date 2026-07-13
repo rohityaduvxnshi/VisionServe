@@ -18,7 +18,10 @@ def client():
 
 
 def test_health(client):
-    assert client.get("/health").json() == {"status": "ok"}
+    body = client.get("/health").json()
+    assert body["status"] == "ok"
+    assert body["backend"] == "openvino"
+    assert body["model"] and body["version"]
 
 
 def test_model_info(client):
