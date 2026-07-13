@@ -1,0 +1,12 @@
+# serving-only deps (no onnxruntime/nncf — the API serves OpenVINO artifacts).
+# torch is required by the ultralytics wrapper; install CPU wheels via:
+#   pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+ultralytics==8.4.84
+torch==2.12.1
+torchvision==0.27.1
+openvino==2026.2.1
+numpy==2.4.6
+pillow==12.3.0
+fastapi==0.139.0
+uvicorn==0.49.0
+python-multipart==0.0.32

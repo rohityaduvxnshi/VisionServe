@@ -1,0 +1,15 @@
+# PPE Detection_DATA v3 (Roboflow: tanish-y7iqo/ppe-detection_data-adcya, CC BY 4.0)
+# https://universe.roboflow.com/tanish-y7iqo/ppe-detection_data-adcya/dataset/3
+# dataset lives in data/ppe/ (gitignored); download via:
+#   curl -L -o data/ppe_dataset.zip "https://huggingface.co/Tanishjain9/yolov8n-ppe-detection-6classes/resolve/main/PPE%20Detection_DATA.v3-ppe_dataset_6-class.yolov8.zip"
+#   then extract into data/ppe/
+# one-time setup: yolo settings datasets_dir=<abs path to this repo's data dir>
+# (ultralytics resolves the relative 'path' below against its global datasets_dir)
+
+path: ppe
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 6
+names: ['Gloves', 'Vest', 'goggles', 'helmet', 'mask', 'safety_shoe']

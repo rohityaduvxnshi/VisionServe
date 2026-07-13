@@ -1,0 +1,27 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# datasets and model weights (large, reproducible via model/ scripts)
+data/*
+!data/ppe.yaml
+!data/.gitkeep
+*.pt
+*.onnx
+model/*_openvino_model/
+model/runs/
+runs/
+
+# node
+web/node_modules/
+web/dist/
+
+# generated deploy staging (contains model binary copies)
+deploy/hf-space/
+
+# env
+.env
+
+# Intel graphics compiler dump (appears when OpenVINO probes the GPU plugin)
+kernel.errors.txt

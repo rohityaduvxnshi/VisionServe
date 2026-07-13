@@ -1,0 +1,58 @@
+{
+  "cpu": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+  "cores": 8,
+  "omp_threads": 4,
+  "torch_threads": 4,
+  "note": "OpenVINO (TBB) and ONNX Runtime manage their own thread pools; both default to physical cores. Same machine + same wrapper for every row.",
+  "imgsz": 640,
+  "results": [
+    {
+      "model": "model/ppe_yolov8n.pt",
+      "p50_ms": 102.0,
+      "p95_ms": 133.4,
+      "p99_ms": 331.7,
+      "img_per_s": 9.04,
+      "runs": 150,
+      "map50": 0.7905,
+      "map50_95": 0.4964
+    },
+    {
+      "model": "model/ppe_yolov8n.onnx",
+      "p50_ms": 75.8,
+      "p95_ms": 88.1,
+      "p99_ms": 162.7,
+      "img_per_s": 13.16,
+      "runs": 150,
+      "map50": 0.7869,
+      "map50_95": 0.4991
+    },
+    {
+      "model": "model/ppe_yolov8n_openvino_model",
+      "p50_ms": 30.8,
+      "p95_ms": 90.3,
+      "p99_ms": 121.4,
+      "img_per_s": 26.84,
+      "runs": 150,
+      "map50": 0.7866,
+      "map50_95": 0.4996
+    },
+    {
+      "model": "model/ppe_yolov8n_int8_openvino_model",
+      "p50_ms": 27.8,
+      "p95_ms": 93.9,
+      "p99_ms": 133.0,
+      "img_per_s": 25.3,
+      "runs": 150,
+      "map50": 0.788,
+      "map50_95": 0.4945
+    },
+    {
+      "model": "model/ppe_yolov8n_int8.onnx",
+      "p50_ms": 145.9,
+      "p95_ms": 224.5,
+      "p99_ms": 385.2,
+      "img_per_s": 6.09,
+      "runs": 150
+    }
+  ]
+}
