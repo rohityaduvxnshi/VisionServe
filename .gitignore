@@ -19,6 +19,7 @@ web/dist/
 
 # generated deploy staging (contains model binary copies)
 deploy/hf-space/
+deploy/*.zip
 
 # env
 .env

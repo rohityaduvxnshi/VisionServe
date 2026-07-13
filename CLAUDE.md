@@ -155,29 +155,42 @@ Deployed target (HF Spaces 2 vCPU): `MEASURE` — re-run `model/benchmark.py` an
 
 ## Deployment record
 
-**Status: NOT DEPLOYED yet.** Blockers checked 2026-07-13 on this machine: no HF token or
-`hf` CLI, no `huggingface_hub` in the venv, no Vercel CLI login (Vercel MCP connector *is*
-available in Claude Code), no local checkout of the `dash-board.in` portfolio repo.
+**Target changed 2026-07-13 by owner decision: native deploy on the Windows VPS**, overriding
+the original HF-Spaces plan (owner wants it on his own host; HF token friction). Trade-offs
+knowingly accepted: the "compute stays off the VPS" portfolio rule is waived for this
+service; the VPS CPU is unknown (likely no VNNI) so **all latency claims stay labelled
+dev-machine until re-measured on the VPS**; no Docker on the VPS → native venv +
+Task Scheduler, the VPS's standing service pattern.
 
-Planned record (fill each on completion):
+**Status: NOT DEPLOYED yet** — bundle prepared, commands documented, awaiting execution on
+the VPS (no VPS access from this machine).
 
-- **Backend → HF Docker Space:** create Space `visionserve` (Docker SDK), then
-  `deploy\stage_hf_space.ps1` and push `deploy/hf-space/` per the commands in that script's
-  header (needs an HF write token). Set `APP_VERSION` to the git tag in the Space settings.
-  URL: `MEASURE` · deploy date: `MEASURE` · image tag: `MEASURE`.
-- **Frontend → Vercel:** project root `web/`, `VITE_API_URL=<Space URL>`. URL: `MEASURE`.
-- **`dash-board.in` registry change** (`projects.config.json`, apply on the portfolio, not
-  in this repo): `visionserve` entry → `deployType: "service"` → `"external"`,
-  `status: "planned"` → `"live"`, `liveUrl: null` → Space URL, `metrics` → the measured
-  table above, drop `servicePort: 8002`. Then redeploy the portfolio.
-- **Caddy redirect** on the VPS (redirect, not reverse_proxy — HF Spaces behaves oddly
-  behind proxies):
+- **Bundle:** `deploy\visionserve-vps.zip` (11.3 MB, gitignored) = staged server code +
+  both OpenVINO model dirs + `vps_run.ps1` (committed at `deploy/vps_run.ps1`). Regenerate
+  any time: `deploy\stage_hf_space.ps1`, copy in `vps_run.ps1`, zip `deploy\hf-space\*`.
+- **Backend on VPS:** unzip to `C:\apps\visionserve`, Python 3.12 venv, pip install with
+  the PyTorch CPU index (see `server/requirements.txt` header), run `vps_run.ps1`
+  (binds 127.0.0.1:8002, `APP_VERSION=v1.0`), register as a Task Scheduler startup task.
+  Deploy date: `MEASURE`.
+- **Caddy** on the VPS (reverse_proxy now — backend is local to Caddy; the HF-redirect
+  variant is obsolete):
   ```
   visionserve.dash-board.in {
-      redir https://<user>-visionserve.hf.space{uri}
+      reverse_proxy 127.0.0.1:8002
   }
   ```
-  Redirect status: `MEASURE`.
+  Needs a DNS A record for `visionserve.dash-board.in` → VPS IP unless a wildcard exists.
+  Status: `MEASURE`.
+- **`dash-board.in` registry change** (`projects.config.json`, on the portfolio repo, not
+  here): `visionserve` entry keeps `deployType: "service"` and `servicePort: 8002`;
+  `status: "planned"` → `"live"`; `liveUrl: null` → `https://visionserve.dash-board.in`;
+  `metrics` → the measured tables above. Redeploy the portfolio after.
+- **Frontend → Vercel** (via Claude Code's Vercel MCP once the backend URL is live):
+  project root `web/`, `VITE_API_URL=https://visionserve.dash-board.in`. URL: `MEASURE`.
+  Then add the Vercel URL to `ALLOWED_ORIGINS` in `vps_run.ps1` on the VPS and restart the task.
+- **Post-deploy:** re-run `model/benchmark.py` + `server/loadtest.py` **on the VPS**
+  (loadtest from elsewhere measures the network, not the service), fill deployed-target
+  `MEASURE` numbers, record demo GIF, tag `v1.0`.
 
 ## Known limitations / honesty log
 
